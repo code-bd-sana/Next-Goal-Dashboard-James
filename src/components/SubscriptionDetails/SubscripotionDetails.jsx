@@ -7,9 +7,9 @@ import {
   TableRow,
 } from "../ui/table";
 import Badge from "../ui/badge/Badge";
+import Link from 'next/link';
 
 // Define the TypeScript interface for subscription data
-
 
 // Subscription data
 const subscriptionData = [
@@ -141,12 +141,13 @@ export default function SubscriptionDetails() {
           </div>
 
           <div className="flex items-center gap-3">
+          <Link href={'/subscription-details/upgrade-plan'}>
             <button 
               className="inline-flex items-center gap-2 rounded-lg px-4 py-2.5 text-theme-sm font-medium text-gray-800 shadow-theme-xs hover:opacity-90 transition-opacity"
               style={{ backgroundColor: '#FFD700' }}
             >
               Upgrade Plan
-            </button>
+            </button></Link>
           </div>
         </div>
 

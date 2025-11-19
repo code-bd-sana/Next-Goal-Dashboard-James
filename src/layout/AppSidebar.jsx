@@ -18,6 +18,7 @@ import {
 } from "../icons/index";
 import SidebarWidget from "./SidebarWidget";
 import { FaUser } from "react-icons/fa";
+import { useSession } from "next-auth/react";
 
 
 
@@ -86,9 +87,17 @@ const othersItems = [
   },
 ];
 
+
+ 
 const AppSidebar = () => {
   const { isExpanded, isMobileOpen, isHovered, setIsHovered } = useSidebar();
   const pathname = usePathname();
+   const {data} = useSession();
+    console.log(data?.user, "This is your data")
+    
+    const role = data?.user?.role;
+    
+    console.log(role , "This is your role")
 
   const renderMenuItems = (navItems, menuType) => (
     <ul className="flex flex-col gap-4">
@@ -201,7 +210,7 @@ const AppSidebar = () => {
       <div className="flex flex-col overflow-y-auto duration-300 ease-linear no-scrollbar">
         <nav className="mb-6">
           <div className="flex flex-col gap-4">
-            <div>
+           { role ===  'admin' && <div>
               <h2
                 className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${
                   !isExpanded && !isHovered
@@ -216,9 +225,9 @@ const AppSidebar = () => {
                 )}
               </h2>
               {renderMenuItems(navItems, "main")}
-            </div>
+            </div>}
 
-            <div className="">
+          { role === 'user' && <div className="">
               <h2
                 className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${
                   !isExpanded && !isHovered
@@ -227,13 +236,13 @@ const AppSidebar = () => {
                 }`}
               >
                 {isExpanded || isHovered || isMobileOpen ? (
-                  "User Menu"
+                  ""
                 ) : (
                   <HorizontaLDots />
                 )}
               </h2>
-              {renderMenuItems(othersItems, "User Menu")}
-            </div>
+              {renderMenuItems(othersItems, "")}
+            </div>}
           </div>
         </nav>
         {isExpanded || isHovered || isMobileOpen ? <SidebarWidget /> : null}
