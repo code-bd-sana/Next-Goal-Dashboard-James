@@ -13,8 +13,12 @@ export const SubsciriptionApi = createApi({
 
 
             })
+        }),
+        mySubscription:builder.query({
+            query:(email)=>`/subscription/my-subscripton/${email}`,
+            providesTags:["Subscription"]
         })
     })
 });
 
-export const {useCreateSubscriptionMutation} = SubsciriptionApi
+export const {useCreateSubscriptionMutation, useMySubscriptionQuery} = SubsciriptionApi

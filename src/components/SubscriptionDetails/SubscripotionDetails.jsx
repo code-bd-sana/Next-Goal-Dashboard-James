@@ -1,4 +1,5 @@
-import React from 'react';
+'use client'
+import React, { useState } from 'react';
 import {
   Table,
   TableBody,
@@ -8,6 +9,8 @@ import {
 } from "../ui/table";
 import Badge from "../ui/badge/Badge";
 import Link from 'next/link';
+import { useMySubscriptionQuery } from '@/feature/SubscriptionApi';
+import { useSession } from 'next-auth/react';
 
 // Define the TypeScript interface for subscription data
 
@@ -66,15 +69,95 @@ const subscriptionData = [
 ];
 
 export default function SubscriptionDetails() {
+  const [isCancelling, setIsCancelling] = useState(false);
   const currentSubscription = subscriptionData.find(sub => sub.status === "Active");
+
+  const userdata = useSession();
+  if(userdata?.status === 'loading'){
+    return <div>Loading...</div>;
+  }
+
+  const formatDate = (dateString) => {
+    const options = { day: "2-digit", month: "short", year: "numeric" };
+    return new Date(dateString).toLocaleDateString("en-US", options);
+  };
+
+  console.log(userdata?.data?.user?.email ,"This is user email")
+  const {data:subscription, isLoading, error} = useMySubscriptionQuery(userdata?.data?.user?.email, {skip: userdata?.status !== 'authenticated'});
+
+  const data = subscription?.subscription
+
+  console.log(data, "ami sesh!")
+
+  // ✅ Cancel Subscription Handler
+  const handleCancelSubscription = async () => {
+    try {
+      setIsCancelling(true);
+      const userEmail = userdata?.data?.user?.email;
+      
+      console.log('🔄 Cancelling subscription for email:', userEmail);
+      
+      // Here you would typically call your API to cancel subscription
+      // For now, just log the email to console
+      console.log('📧 Email sent for cancellation:', userEmail);
+      
+      // Simulate API call delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      alert(`Subscription cancellation request sent for: ${userEmail}`);
+      
+    } catch (error) {
+      console.error('❌ Error cancelling subscription:', error);
+      alert('Error cancelling subscription. Please try again.');
+    } finally {
+      setIsCancelling(false);
+    }
+  };
+
+  // ✅ Confirm before cancellation
+  const confirmCancelSubscription = () => {
+    const userEmail = userdata?.data?.user?.email;
+    
+    if (window.confirm(`Are you sure you want to cancel your subscription for ${userEmail}?`)) {
+      handleCancelSubscription();
+    }
+  };
 
   return (
     <div className="space-y-6">
       {/* Current Subscription Card */}
       <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.03]">
-        <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90 mb-4">
-          Current Subscription
-        </h3>
+        <div className="flex justify-between items-start mb-4">
+          <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
+            Current Subscription
+          </h3>
+          
+          {/* ✅ Cancel Subscription Button - Only show if subscription is active */}
+          {data?.status === "active" && (
+            <button 
+              onClick={confirmCancelSubscription}
+              disabled={isCancelling}
+              className="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-theme-sm font-medium text-white bg-red-600 hover:bg-red-700 disabled:bg-red-400 disabled:cursor-not-allowed transition-colors"
+            >
+              {isCancelling ? (
+                <>
+                  <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Cancelling...
+                </>
+              ) : (
+                <>
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+                  </svg>
+                  Cancel Subscription
+                </>
+              )}
+            </button>
+          )}
+        </div>
         
         {currentSubscription ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -82,7 +165,7 @@ export default function SubscriptionDetails() {
             <div className="space-y-2">
               <p className="text-sm text-gray-500 dark:text-gray-400">Plan Name</p>
               <p className="font-semibold text-gray-800 dark:text-white/90">
-                {currentSubscription.planName}
+                {data?.plan}
               </p>
             </div>
 
@@ -90,7 +173,7 @@ export default function SubscriptionDetails() {
             <div className="space-y-2">
               <p className="text-sm text-gray-500 dark:text-gray-400">Subscription Period</p>
               <p className="font-semibold text-gray-800 dark:text-white/90">
-                {currentSubscription.startDate} - {currentSubscription.endDate}
+            {formatDate(data?.startDate)} - {formatDate(data?.endDate)}
               </p>
             </div>
 
@@ -98,7 +181,7 @@ export default function SubscriptionDetails() {
             <div className="space-y-2">
               <p className="text-sm text-gray-500 dark:text-gray-400">Next Billing</p>
               <p className="font-semibold text-gray-800 dark:text-white/90">
-                {currentSubscription.nextBilling}
+             {formatDate(data?.endDate)} 
               </p>
             </div>
 
@@ -108,16 +191,16 @@ export default function SubscriptionDetails() {
               <Badge
                 size="sm"
                 color={
-                  currentSubscription.status === "Active"
+                  data?.status === "active"
                     ? "success"
-                    : currentSubscription.status === "Pending"
+                    : data?.status === "pending"
                     ? "warning"
-                    : currentSubscription.status === "Expired"
+                    : data?.status === "expired"
                     ? "error"
                     : "gray"
                 }
               >
-                {currentSubscription.status}
+                {data?.status}
               </Badge>
             </div>
           </div>
@@ -141,13 +224,14 @@ export default function SubscriptionDetails() {
           </div>
 
           <div className="flex items-center gap-3">
-          <Link href={'/subscription-details/upgrade-plan'}>
-            <button 
-              className="inline-flex items-center gap-2 rounded-lg px-4 py-2.5 text-theme-sm font-medium text-gray-800 shadow-theme-xs hover:opacity-90 transition-opacity"
-              style={{ backgroundColor: '#FFD700' }}
-            >
-              Upgrade Plan
-            </button></Link>
+            <Link href={'/subscription-details/upgrade-plan'}>
+              <button 
+                className="inline-flex items-center gap-2 rounded-lg px-4 py-2.5 text-theme-sm font-medium text-gray-800 shadow-theme-xs hover:opacity-90 transition-opacity"
+                style={{ backgroundColor: '#FFD700' }}
+              >
+                Upgrade Plan
+              </button>
+            </Link>
           </div>
         </div>
 
@@ -192,7 +276,7 @@ export default function SubscriptionDetails() {
                 >
                   Payment Method
                 </TableCell>
-            
+              
               </TableRow>
             </TableHeader>
 
@@ -233,7 +317,7 @@ export default function SubscriptionDetails() {
                   <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
                     {subscription.paymentMethod}
                   </TableCell>
-             
+               
                 </TableRow>
               ))}
             </TableBody>
