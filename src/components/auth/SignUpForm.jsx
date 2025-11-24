@@ -16,7 +16,13 @@ export default function SignUpForm() {
     firstName: "",
     lastName: "",
     email: "",
-    password: ""
+    password: "",
+    position: "",
+    graduationYear: "",
+    gpa: "",
+    height: "",
+    weight: "",
+    team: ""
   });
 
   const handleInputChange = (e) => {
@@ -27,36 +33,40 @@ export default function SignUpForm() {
     }));
   };
 
-const handleSubmit = async(e) => {
-  e.preventDefault();
-  
-  const data = {
-    firstName: formData.firstName,
-    lastName: formData.lastName,
-    email: formData.email,
-    password: formData.password,
-    termsAccepted: isChecked,
-    role:"user"
-  };
-
-  console.log(data, "ami tomar base url")
-
-  try {
-    const response = await axios.post(`${base_url}/user/register/`, data, {
-      withCredentials:true
-    });
-    console.log(response, "Done re yamal");
-    toast.success("User Registration Success");
-window.location.href = '/signin';
-
+  const handleSubmit = async(e) => {
+    e.preventDefault();
     
-  } catch (error) {
-    console.log(error, "tomi amar personal error!")
-    toast.error(error?.response?.data?.message || "Something went wrong!")
-  }
+    const data = {
+      firstName: formData.firstName,
+      lastName: formData.lastName,
+      email: formData.email,
+      password: formData.password,
+      position: formData.position,
+      graduationYear: formData.graduationYear,
+      gpa: formData.gpa,
+      height: formData.height,
+      weight: formData.weight,
+      team: formData.team,
+      termsAccepted: isChecked,
+      role:"user"
+    };
 
-  console.log(data);
-};
+    console.log(data, "ami tomar base url")
+
+    try {
+      const response = await axios.post(`${base_url}/user/register/`, data, {
+        withCredentials:true
+      });
+      console.log(response, "Done re yamal");
+      toast.success("User Registration Success");
+      window.location.href = '/signin';
+    } catch (error) {
+      console.log(error, "tomi amar personal error!")
+      toast.error(error?.response?.data?.message || "Something went wrong!")
+    }
+
+    console.log(data);
+  };
 
   return (
     <div className="flex flex-col flex-1 lg:w-1/2 w-full overflow-y-auto no-scrollbar">
@@ -78,7 +88,7 @@ window.location.href = '/signin';
               Sign Up
             </h1>
             <p className="text-sm text-gray-500 dark:text-gray-400">
-              Enter your email and password to sign up!
+              Enter your details to create an account!
             </p>
           </div>
           <div>
@@ -116,6 +126,7 @@ window.location.href = '/signin';
                     />
                   </div>
                 </div>
+
                 {/* <!-- Email --> */}
                 <div>
                   <Label>
@@ -131,6 +142,7 @@ window.location.href = '/signin';
                     required
                   />
                 </div>
+
                 {/* <!-- Password --> */}
                 <div>
                   <Label>
@@ -158,6 +170,91 @@ window.location.href = '/signin';
                     </span>
                   </div>
                 </div>
+
+                {/* <!-- New Fields --> */}
+                <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                  {/* <!-- Position --> */}
+                  <div className="sm:col-span-2">
+                    <Label>Position</Label>
+                    <select
+                      id="position"
+                      name="position"
+                      value={formData.position}
+                      onChange={handleInputChange}
+                      className="w-full px-4 py-3 text-sm transition bg-transparent border rounded-lg border-gray-300 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 dark:border-gray-700 dark:bg-dark-800 dark:text-white/90"
+                    >
+                      <option value="" className="text-black">Select Position</option>
+                      <option value="left back" className="text-black">Left Back</option>
+                      <option value="right back" className="text-black">Right Back</option>
+                    </select>
+                  </div>
+
+                  {/* <!-- Graduation Year --> */}
+                  <div className="sm:col-span-1">
+                    <Label>Graduation Year</Label>
+                    <Input
+                      type="text"
+                      id="graduationYear"
+                      name="graduationYear"
+                      value={formData.graduationYear}
+                      onChange={handleInputChange}
+                      placeholder="e.g., 2024"
+                    />
+                  </div>
+
+                  {/* <!-- GPA --> */}
+                  <div className="sm:col-span-1">
+                    <Label>GPA</Label>
+                    <Input
+                      type="text"
+                      id="gpa"
+                      name="gpa"
+                      value={formData.gpa}
+                      onChange={handleInputChange}
+                      placeholder="e.g., 3.5"
+                    />
+                  </div>
+
+                  {/* <!-- Height --> */}
+                  <div className="sm:col-span-1">
+                    <Label>Height</Label>
+                    <Input
+                      type="text"
+                      id="height"
+                      name="height"
+                      value={formData.height}
+                      onChange={handleInputChange}
+                      placeholder="e.g., 5'10"
+                    />
+                  </div>
+
+                  {/* <!-- Weight --> */}
+                  <div className="sm:col-span-1">
+                    <Label>Weight</Label>
+                    <Input
+                      type="text"
+                      id="weight"
+                      name="weight"
+                      value={formData.weight}
+                      onChange={handleInputChange}
+                      placeholder="e.g., 160 lbs"
+                    />
+                  </div>
+
+                  {/* <!-- Team --> */}
+                  <div className="sm:col-span-2">
+                    <Label>Team</Label>
+                    <Input
+                      type="text"
+                      id="team"
+                      name="team"
+                      value={formData.team}
+                      onChange={handleInputChange}
+                      placeholder="Enter your team name"
+                    />
+                  </div>
+                </div>
+
                 {/* <!-- Checkbox --> */}
                 <div className="flex items-center gap-3">
                   <Checkbox
@@ -176,6 +273,7 @@ window.location.href = '/signin';
                     </span>
                   </p>
                 </div>
+
                 {/* <!-- Button --> */}
                 <div>
                   <button 

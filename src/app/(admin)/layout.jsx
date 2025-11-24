@@ -21,10 +21,10 @@ export default function AdminLayout({
     : "lg:ml-[90px]";
 
      const data = useSession();
-    console.log(data, "This is your data")
+
 
     
-    console.log(data, "This is your role")
+  
 
     if(data.status === "loading"){
       return <div className="flex justify-center items-center bg-[#101828] min-h-screen">

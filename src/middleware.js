@@ -18,7 +18,7 @@ export default async function middleware(req) {
     secret: "aidfjnvociydfnovfadf",
     secureCookie: process.env.NODE_ENV === 'production'
   });
-console.log(token, "Tomi amar token madari")
+
 
 
 
@@ -28,7 +28,7 @@ console.log(token, "Tomi amar token madari")
   }
 
 
-  console.log("kire salar beta m ama")
+ 
   return NextResponse.next();
 
 }

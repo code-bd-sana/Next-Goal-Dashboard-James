@@ -9,117 +9,87 @@ import {
 } from "../ui/table";
 import Badge from "../ui/badge/Badge";
 import Link from 'next/link';
-import { useMySubscriptionQuery } from '@/feature/SubscriptionApi';
+import { useCancelSubscriptionMutation, useMySubscriptionQuery } from '@/feature/SubscriptionApi';
 import { useSession } from 'next-auth/react';
+import { useMyAllSubscriptionsQuery } from '../../feature/SubscriptionApi';
+import toast from 'react-hot-toast';
 
 // Define the TypeScript interface for subscription data
 
-// Subscription data
-const subscriptionData = [
-  {
-    id: 1,
-    planName: "Premium Plan",
-    price: "$29.99/month",
-    startDate: "15 Jan, 2024",
-    endDate: "15 Feb, 2024",
-    status: "Active",
-    paymentMethod: "Credit Card",
-    nextBilling: "15 Feb, 2024",
-  },
-  {
-    id: 2,
-    planName: "Pro Plan",
-    price: "$49.99/month",
-    startDate: "10 Dec, 2023",
-    endDate: "10 Jan, 2024",
-    status: "Expired",
-    paymentMethod: "PayPal",
-    nextBilling: "-",
-  },
-  {
-    id: 3,
-    planName: "Basic Plan",
-    price: "$19.99/month",
-    startDate: "01 Nov, 2023",
-    endDate: "01 Dec, 2023",
-    status: "Canceled",
-    paymentMethod: "Credit Card",
-    nextBilling: "-",
-  },
-  {
-    id: 4,
-    planName: "Premium Plan",
-    price: "$29.99/month",
-    startDate: "20 Sep, 2023",
-    endDate: "20 Oct, 2023",
-    status: "Expired",
-    paymentMethod: "Stripe",
-    nextBilling: "-",
-  },
-  {
-    id: 5,
-    planName: "Enterprise Plan",
-    price: "$99.99/month",
-    startDate: "05 Jan, 2024",
-    endDate: "05 Feb, 2024",
-    status: "Active",
-    paymentMethod: "Bank Transfer",
-    nextBilling: "05 Feb, 2024",
-  },
-];
 
 export default function SubscriptionDetails() {
   const [isCancelling, setIsCancelling] = useState(false);
-  const currentSubscription = subscriptionData.find(sub => sub.status === "Active");
 
   const userdata = useSession();
-  if(userdata?.status === 'loading'){
+  if (userdata?.status === 'loading') {
     return <div>Loading...</div>;
   }
+
+  const { data: allSubscription, isError, error: allSubscriptionError } = useMyAllSubscriptionsQuery(userdata?.data?.user?.email, { skip: userdata?.status !== 'authenticated' });
+
+  if (allSubscriptionError) {
+    console.log(allSubscriptionError, "this is all subscription error")
+  }
+  console.log(allSubscription?.data, 'this is all subscription');
+  const subscriptionData = allSubscription?.data || [];
 
   const formatDate = (dateString) => {
     const options = { day: "2-digit", month: "short", year: "numeric" };
     return new Date(dateString).toLocaleDateString("en-US", options);
   };
 
-  console.log(userdata?.data?.user?.email ,"This is user email")
-  const {data:subscription, isLoading, error} = useMySubscriptionQuery(userdata?.data?.user?.email, {skip: userdata?.status !== 'authenticated'});
+  const currentSubscription = subscriptionData.find(sub => sub.status === "active");
+  console.log(userdata?.data?.user?.email, "This is user email")
+  
+  const { data: subscription, isLoading, error } = useMySubscriptionQuery(userdata?.data?.user?.email, { skip: userdata?.status !== 'authenticated' });
+  const { data: allSubscriptions } = useMyAllSubscriptionsQuery(userdata?.data?.user?.email, { skip: userdata?.status !== 'authenticated' });
+  console.log(allSubscriptions, "all my subscription is here")
 
-  const data = subscription?.subscription
+  const data = subscription?.subscription;
+  const [cancelSubscription, { isLoading: isCanceling }] = useCancelSubscriptionMutation();
 
-  console.log(data, "ami sesh!")
 
   // ✅ Cancel Subscription Handler
-  const handleCancelSubscription = async () => {
+  const handleCancelSubscription = async (subscription) => {
     try {
       setIsCancelling(true);
-      const userEmail = userdata?.data?.user?.email;
+      const userEmail = subscription.email;
+      const stripeSubscriptionId = subscription.stripeSubscriptionId;
       
       console.log('🔄 Cancelling subscription for email:', userEmail);
+      console.log('📋 Stripe Subscription ID:', stripeSubscriptionId);
       
       // Here you would typically call your API to cancel subscription
-      // For now, just log the email to console
+      // For now, just log the email and stripeSubscriptionId to console
       console.log('📧 Email sent for cancellation:', userEmail);
+      console.log('💳 Stripe Subscription ID for cancellation:', stripeSubscriptionId);
+      const data = {
+        email: userEmail,
+        id: stripeSubscriptionId
+      }
+
+      await cancelSubscription(data).unwrap();
+      toast.success('✅ Subscription cancelled successfully!');
       
       // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      alert(`Subscription cancellation request sent for: ${userEmail}`);
+
+ 
       
     } catch (error) {
       console.error('❌ Error cancelling subscription:', error);
-      alert('Error cancelling subscription. Please try again.');
+     
     } finally {
       setIsCancelling(false);
     }
   };
 
   // ✅ Confirm before cancellation
-  const confirmCancelSubscription = () => {
-    const userEmail = userdata?.data?.user?.email;
+  const confirmCancelSubscription = (subscription) => {
+    const userEmail = subscription.email;
+    const stripeSubscriptionId = subscription.stripeSubscriptionId;
     
-    if (window.confirm(`Are you sure you want to cancel your subscription for ${userEmail}?`)) {
-      handleCancelSubscription();
+    if (window.confirm(`Are you sure you want to cancel your subscription for ${userEmail}?\n\nPlan: ${subscription.plan}\nStripe ID: ${stripeSubscriptionId}`)) {
+      handleCancelSubscription(subscription);
     }
   };
 
@@ -132,10 +102,10 @@ export default function SubscriptionDetails() {
             Current Subscription
           </h3>
           
-          {/* ✅ Cancel Subscription Button - Only show if subscription is active */}
-          {data?.status === "active" && (
+          {/* ✅ Cancel Subscription Button - Only show if current subscription is active */}
+          {currentSubscription && currentSubscription.status === "active" && (
             <button 
-              onClick={confirmCancelSubscription}
+              onClick={() => confirmCancelSubscription(currentSubscription)}
               disabled={isCancelling}
               className="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-theme-sm font-medium text-white bg-red-600 hover:bg-red-700 disabled:bg-red-400 disabled:cursor-not-allowed transition-colors"
             >
@@ -165,7 +135,7 @@ export default function SubscriptionDetails() {
             <div className="space-y-2">
               <p className="text-sm text-gray-500 dark:text-gray-400">Plan Name</p>
               <p className="font-semibold text-gray-800 dark:text-white/90">
-                {data?.plan}
+                {currentSubscription.plan}
               </p>
             </div>
 
@@ -173,7 +143,7 @@ export default function SubscriptionDetails() {
             <div className="space-y-2">
               <p className="text-sm text-gray-500 dark:text-gray-400">Subscription Period</p>
               <p className="font-semibold text-gray-800 dark:text-white/90">
-            {formatDate(data?.startDate)} - {formatDate(data?.endDate)}
+                {formatDate(currentSubscription.startDate)} - {formatDate(currentSubscription.endDate)}
               </p>
             </div>
 
@@ -181,7 +151,7 @@ export default function SubscriptionDetails() {
             <div className="space-y-2">
               <p className="text-sm text-gray-500 dark:text-gray-400">Next Billing</p>
               <p className="font-semibold text-gray-800 dark:text-white/90">
-             {formatDate(data?.endDate)} 
+                {formatDate(currentSubscription.endDate)} 
               </p>
             </div>
 
@@ -191,16 +161,16 @@ export default function SubscriptionDetails() {
               <Badge
                 size="sm"
                 color={
-                  data?.status === "active"
+                  currentSubscription.status === "active"
                     ? "success"
-                    : data?.status === "pending"
+                    : currentSubscription.status === "pending"
                     ? "warning"
-                    : data?.status === "expired"
+                    : currentSubscription.status === "expired"
                     ? "error"
                     : "gray"
                 }
               >
-                {data?.status}
+                {currentSubscription.status}
               </Badge>
             </div>
           </div>
@@ -276,7 +246,12 @@ export default function SubscriptionDetails() {
                 >
                   Payment Method
                 </TableCell>
-              
+                <TableCell
+                  isHeader
+                  className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                >
+                  Actions
+                </TableCell>
               </TableRow>
             </TableHeader>
 
@@ -286,27 +261,27 @@ export default function SubscriptionDetails() {
                 <TableRow key={subscription.id} className="">
                   <TableCell className="py-3">
                     <p className="font-medium text-gray-800 text-theme-sm dark:text-white/90">
-                      {subscription.planName}
+                      {subscription.plan}
                     </p>
                   </TableCell>
                   <TableCell className="py-3 font-medium text-gray-800 text-theme-sm dark:text-white/90">
-                    {subscription.price}
+                    ${subscription.price}
                   </TableCell>
                   <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                    {subscription.startDate}
+                    {formatDate(subscription.startDate)}
                   </TableCell>
                   <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                    {subscription.endDate}
+                    {formatDate(subscription.endDate)}
                   </TableCell>
                   <TableCell className="py-3">
                     <Badge
                       size="sm"
                       color={
-                        subscription.status === "Active"
+                        subscription.status === "active"
                           ? "success"
-                          : subscription.status === "Pending"
+                          : subscription.status === "pending"
                           ? "warning"
-                          : subscription.status === "Expired"
+                          : subscription.status === "expired"
                           ? "error"
                           : "gray"
                       }
@@ -315,9 +290,35 @@ export default function SubscriptionDetails() {
                     </Badge>
                   </TableCell>
                   <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                    {subscription.paymentMethod}
+                    Stripe
                   </TableCell>
-               
+                  <TableCell className="py-3">
+                    {/* ✅ Cancel button only for active subscriptions in the table */}
+                    {subscription.status === "active" && (
+                      <button 
+                        onClick={() => confirmCancelSubscription(subscription)}
+                        disabled={isCancelling}
+                        className="inline-flex items-center gap-1 rounded-lg px-3 py-1 text-xs font-medium text-white bg-red-600 hover:bg-red-700 disabled:bg-red-400 disabled:cursor-not-allowed transition-colors"
+                      >
+                        {isCancelling ? (
+                          <>
+                            <svg className="animate-spin h-3 w-3 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            Cancelling...
+                          </>
+                        ) : (
+                          <>
+                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                            Cancel
+                          </>
+                        )}
+                      </button>
+                    )}
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -333,7 +334,7 @@ export default function SubscriptionDetails() {
         {/* Pagination */}
         <div className="flex flex-col gap-4 items-center justify-between mt-4 sm:flex-row">
           <p className="text-sm text-gray-500 dark:text-gray-400">
-            Showing 1 to 5 of 5 results
+            Showing 1 to {subscriptionData.length} of {subscriptionData.length} results
           </p>
           <div className="flex items-center gap-2">
             <button 

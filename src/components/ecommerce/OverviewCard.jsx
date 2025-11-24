@@ -1,4 +1,5 @@
 "use client";
+import { useAdminOverviewQuery, useUsreOverviwQuery } from "@/feature/SubscriptionApi";
 import { useSession } from "next-auth/react";
 import React from "react";
 import { 
@@ -53,12 +54,23 @@ export const OverviewCards = () => {
 
 
   const {data} = useSession();
-  console.log(data?.user, "This is your data")
+
   
   const role = data?.user?.role;
   
-  console.log(role , "This is your role")
-  
+const {data:overview} = useUsreOverviwQuery(data?.user?.email);
+  console.log(overview, "tomi amar overview");
+  const formattedDate = new Date(overview?.subscriptionEnding).toLocaleString("en-US", {
+  year: "numeric",
+  month: "short",
+  day: "numeric",
+  hour: "2-digit",
+  minute: "2-digit",
+});
+
+
+const {data:adminOverview} =  useAdminOverviewQuery();
+console.log(adminOverview, 'admin overview')
 
   return (
 
@@ -74,6 +86,10 @@ export const OverviewCards = () => {
         </p>
       </div> */}
 
+      
+
+
+
    {  role === 'admin' && <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 md:gap-6">
         {/* Total Users Card */}
         <div className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03] md:p-6">
@@ -87,7 +103,7 @@ export const OverviewCards = () => {
                 Total Users
               </span>
               <h4 className="mt-2 font-bold text-gray-800 text-title-sm dark:text-white/90">
-                {metricsData.totalUsers.toLocaleString()}
+                 {adminOverview?.totalUser}
               </h4>
             </div>
           </div>
@@ -105,7 +121,7 @@ export const OverviewCards = () => {
                 Total Subscriptions
               </span>
               <h4 className="mt-2 font-bold text-gray-800 text-title-sm dark:text-white/90">
-                {metricsData.totalSubscriptions.toLocaleString()}
+                {adminOverview?.totalSubscriptions}
               </h4>
             </div>
           </div>
@@ -123,7 +139,7 @@ export const OverviewCards = () => {
                 Total Payments
               </span>
               <h4 className="mt-2 font-bold text-gray-800 text-title-sm dark:text-white/90">
-                ${metricsData.totalPayments.toLocaleString()}
+                ${adminOverview?.totalPayments}
               </h4>
             </div>
           </div>
@@ -138,10 +154,10 @@ export const OverviewCards = () => {
           <div className="flex items-end justify-between mt-5">
             <div>
               <span className="text-sm text-gray-500 dark:text-gray-400">
-                Emails Sent
+             Total Payments (This Month)
               </span>
               <h4 className="mt-2 font-bold text-gray-800 text-title-sm dark:text-white/90">
-                {metricsData.totalEmails.toLocaleString()}
+                ${adminOverview?.totalPayments}
               </h4>
             </div>
           </div>
@@ -168,7 +184,7 @@ role === "user" && <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid
                 Total Cost
               </span>
               <h4 className="mt-2 font-bold text-gray-800 text-title-sm dark:text-white/90">
-                ${metricsData.totalRevenue.toLocaleString()}
+                ${overview?.totalAmountPaid}
               </h4>
             </div>
           </div>
@@ -183,10 +199,10 @@ role === "user" && <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid
           <div className="flex items-end justify-between mt-5">
             <div>
               <span className="text-sm text-gray-500 dark:text-gray-400">
-                Sending Limit
+               Total Subscriptions
               </span>
               <h4 className="mt-2 font-bold text-gray-800 text-title-sm dark:text-white/90">
-                {metricsData.limitUsed.toLocaleString()}/{metricsData.sendingLimit.toLocaleString()}
+                {overview?.totalSubscriptions}
               </h4>
             </div>
           </div>
@@ -204,7 +220,7 @@ role === "user" && <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid
                 Subscription Ending Soon
               </span>
               <h4 className="mt-2 font-bold text-gray-800 text-title-sm dark:text-white/90">
-            2/1/2026
+              {formattedDate}
               </h4>
             </div>
           </div>
@@ -219,10 +235,10 @@ role === "user" && <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid
           <div className="flex items-end justify-between mt-5">
             <div>
               <span className="text-sm text-gray-500 dark:text-gray-400">
-                Emails Sent (This Month)
+              Total Cost (This Month)
               </span>
               <h4 className="mt-2 font-bold text-gray-800 text-title-sm dark:text-white/90">
-                {metricsData.emailsSent.toLocaleString()}
+           {overview?.totalPaymentThisMonth}
               </h4>
             </div>
           </div>

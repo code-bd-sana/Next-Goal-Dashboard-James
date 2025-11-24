@@ -19,6 +19,9 @@ import {
 import SidebarWidget from "./SidebarWidget";
 import { FaUser } from "react-icons/fa";
 import { useSession } from "next-auth/react";
+import { MdOutlineMailOutline } from "react-icons/md";
+import { HiTemplate } from "react-icons/hi";
+import { GiTeacher } from "react-icons/gi";
 
 
 
@@ -32,6 +35,11 @@ const navItems = [
     icon: <FaUser />,
     name: "All Users",
     path: "/users",
+  },
+  {
+    icon: <GiTeacher />,
+    name: "Coach",
+    path: "/coach",
   },
   {
     icon: <UserCircleIcon />,
@@ -65,6 +73,24 @@ const othersItems = [
     icon: <GridIcon />,
     name: "Dashboard",    path: "/",
   },
+      {
+      icon: <MdOutlineMailOutline /> ,
+
+    name: "Create Email",
+    path: "/create-email",
+  },
+      {
+      icon: <HiTemplate />,
+
+    name: "Email Template",
+    path: "/template",
+  },
+
+    {
+    icon: <GiTeacher />,
+    name: "Select Coach",
+    path: "/select-coaches",
+  },
   {
     icon: <FaUser />,
     name: "Subscription Details",
@@ -75,6 +101,7 @@ const othersItems = [
     name: " Profile",
     path: "/profile",
   },
+
   // {
   //   name: "Form Elements",
   //   icon: <ListIcon />,
@@ -93,7 +120,7 @@ const AppSidebar = () => {
   const { isExpanded, isMobileOpen, isHovered, setIsHovered } = useSidebar();
   const pathname = usePathname();
    const {data} = useSession();
-    console.log(data?.user, "This is your data")
+
     
     const role = data?.user?.role;
     
@@ -171,7 +198,7 @@ const AppSidebar = () => {
       onMouseLeave={() => setIsHovered(false)}
     >
       <div
-        className={`py-8 flex items-center  ${
+        className={`py-8 justify-center mx-auto flex items-center  ${
           !isExpanded && !isHovered ? "lg:justify-center" : "justify-start"
         }`}
       >
@@ -180,32 +207,30 @@ const AppSidebar = () => {
             <>
               <Image
                 className="dark:hidden"
-                src="/images/logo/logo.png"
+                src="/images/logo/logo2.jpg"
                 alt="Logo"
-                width={60}
-                height={60}
+                width={160}
+                height={160}
               />
               <Image
                 className="hidden dark:block"
-                src="/images/logo/logo.png"
+                src="/images/logo/logo2.jpg"
                 alt="Logo"
-                 width={60}
-                height={60}
+                 width={160}
+                height={160}
               />
             </>
           ) : (
             <Image
-              src="/images/logo/logo.png"
+              src="/images/logo/logo2.jpg"
               alt="Logo"
-           width={60}
-                height={60}
+           width={160}
+                height={160}
             />
           )}
         </Link>
 
-        <div className="text-white text-3xl font-semibold">
-          Next Goal
-        </div>
+        
       </div>
       <div className="flex flex-col overflow-y-auto duration-300 ease-linear no-scrollbar">
         <nav className="mb-6">

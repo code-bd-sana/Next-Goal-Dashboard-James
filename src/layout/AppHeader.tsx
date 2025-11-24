@@ -1,7 +1,6 @@
 "use client";
 import UserDropdown from "@/components/header/UserDropdown";
 import { useSidebar } from "@/context/SidebarContext";
-import { useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
 import React, { useState ,useEffect,useRef} from "react";
@@ -10,8 +9,8 @@ const AppHeader: React.FC = () => {
   const [isApplicationMenuOpen, setApplicationMenuOpen] = useState(false);
 
   const { isMobileOpen, toggleSidebar, toggleMobileSidebar } = useSidebar();
-  const data = useSession();
-  console.log(data, "This is your data")
+
+
 
   const handleToggle = () => {
     if (window.innerWidth >= 1024) {
@@ -86,17 +85,17 @@ const AppHeader: React.FC = () => {
 
           <Link href="/" className="lg:hidden">
             <Image
-              width={32}
-              height={32}
+              width={120}
+              height={120}
               className="dark:hidden"
-             src="/images/logo/logo.png"
+             src="/images/logo/logo2.jpg"
               alt="Logo"
             />
             <Image
-              width={32}
-              height={32}
+              width={120}
+              height={120}
               className="hidden dark:block"
-            src="/images/logo/logo.png"
+            src="/images/logo/logo2.jpg"
               alt="Logo"
             />
           </Link>

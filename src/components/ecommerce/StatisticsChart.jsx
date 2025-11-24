@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { ApexOptions } from "apexcharts";
 import dynamic from "next/dynamic";
 import { useSession } from "next-auth/react";
+import { useAdminOverviewStatisticsQuery, useMyStatisticsQuery } from "@/feature/SubscriptionApi";
 
 // Dynamically import the ReactApexChart component
 const ReactApexChart = dynamic(() => import("react-apexcharts"), {
@@ -12,7 +13,20 @@ const ReactApexChart = dynamic(() => import("react-apexcharts"), {
 export default function StatisticsChart() {
   const [activeTab, setActiveTab] = useState("admin");
 
-  // Admin Chart Data
+  const { data: session } = useSession();
+  const role = session?.user?.role;
+  const email = session?.user?.email;
+
+  const { data: statistics, isLoading, error } = useMyStatisticsQuery(email, {
+    skip: !email || role === "admin",
+  });
+
+  const { data: adminOverview, error: adminError, isLoading: adminLoading } = useAdminOverviewStatisticsQuery();
+
+  console.log(adminOverview, "This is admin overview");
+  console.log(statistics?.monthlyData, "Monthly data from API");
+
+  // Admin Chart Data (Dynamic - uses real data from API)
   const adminOptions = {
     legend: {
       show: false,
@@ -65,12 +79,12 @@ export default function StatisticsChart() {
     tooltip: {
       enabled: true,
       x: {
-        format: "dd MMM yyyy",
+        format: "MMM yyyy",
       },
     },
     xaxis: {
       type: "category",
-      categories: [
+      categories: adminOverview?.monthlyData?.map(item => item.month) || [
         "Jan", "Feb", "Mar", "Apr", "May", "Jun", 
         "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
       ],
@@ -83,6 +97,12 @@ export default function StatisticsChart() {
       tooltip: {
         enabled: false,
       },
+      labels: {
+        style: {
+          colors: "#6B7280",
+          fontSize: "12px",
+        },
+      },
     },
     yaxis: {
       labels: {
@@ -90,28 +110,35 @@ export default function StatisticsChart() {
           fontSize: "12px",
           colors: ["#6B7280"],
         },
+        formatter: function(val) {
+          return val.toLocaleString();
+        }
       },
       title: {
-        text: "",
+        text: "Amount ($)",
         style: {
-          fontSize: "0px",
+          fontSize: "12px",
+          color: "#6B7280",
         },
       },
     },
   };
 
+  // Use real admin data for series
   const adminSeries = [
     {
-      name: "Sales",
-      data: [180, 190, 170, 160, 175, 165, 170, 205, 230, 210, 240, 235],
+      name: "",
+      data: adminOverview?.monthlyData?.map(item => item.sales || 0) || 
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     },
     {
-      name: "Revenue",
-      data: [40, 30, 50, 40, 55, 40, 70, 100, 110, 120, 150, 140],
+      name: "",
+      data: adminOverview?.monthlyData?.map(item => item.revenue || 0) || 
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     },
   ];
 
-  // User Chart Data (Email Sending)
+  // User Chart Data (Dynamic - uses real data from API)
   const userOptions = {
     legend: {
       show: false,
@@ -169,7 +196,7 @@ export default function StatisticsChart() {
     },
     xaxis: {
       type: "category",
-      categories: [
+      categories: statistics?.monthlyData?.map(item => item.month) || [
         "Jan", "Feb", "Mar", "Apr", "May", "Jun", 
         "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
       ],
@@ -209,23 +236,41 @@ export default function StatisticsChart() {
     },
   };
 
+  // Use real data for user series, fallback to static data if no API data
   const userSeries = [
     {
       name: "Emails Sent",
-      data: [12500, 14200, 13800, 15600, 18900, 21000, 23400, 25800, 24300, 26700, 28900, 31200],
+      data: statistics?.monthlyData?.map(item => item.emailsSent || 0) || 
+            [12500, 14200, 13800, 15600, 18900, 21000, 23400, 25800, 24300, 26700, 28900, 31200],
     },
-   
   ];
 
-    const {data} = useSession();
-    console.log(data?.user, "This is your data")
-    
-    const role = data?.user?.role;
-    
-    console.log(role , "This is your role")
+  console.log(role, "This is your role");
 
   const currentSeries = role === "admin" ? adminSeries : userSeries;
   const currentOptions = role === "admin" ? adminOptions : userOptions;
+
+  // Loading state for both admin and user
+  if ((isLoading && role === "user") || (adminLoading && role === "admin")) {
+    return (
+      <div className="rounded-2xl border border-gray-200 bg-white px-5 pb-5 pt-5 dark:border-gray-800 dark:bg-white/[0.03] sm:px-6 sm:pt-6">
+        <div className="flex items-center justify-center h-64">
+          <div className="text-gray-500">Loading statistics...</div>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state for both admin and user
+  if ((error && role === "user") || (adminError && role === "admin")) {
+    return (
+      <div className="rounded-2xl border border-gray-200 bg-white px-5 pb-5 pt-5 dark:border-gray-800 dark:bg-white/[0.03] sm:px-6 sm:pt-6">
+        <div className="flex items-center justify-center h-64">
+          <div className="text-red-500">Error loading statistics</div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="rounded-2xl border border-gray-200 bg-white px-5 pb-5 pt-5 dark:border-gray-800 dark:bg-white/[0.03] sm:px-6 sm:pt-6">
@@ -235,11 +280,11 @@ export default function StatisticsChart() {
             Statistics
           </h3>
           <p className="mt-1 text-gray-500 text-theme-sm dark:text-gray-400">
-            {activeTab === "admin" ? "Current Year Payment" : "Email Sending Analytics"}
+            {role === "admin" ? "Current Year Payment Analytics" : "Email Sending Analytics"}
           </p>
         </div>
         
-        {/* Tab Switcher */}
+        {/* Admin Stats Summary */}
      
       </div>
 
@@ -271,6 +316,9 @@ export default function StatisticsChart() {
           </div>
         ))}
       </div>
+
+      {/* Additional Admin Information */}
+ 
     </div>
   );
 }

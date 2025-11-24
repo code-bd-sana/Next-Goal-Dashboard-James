@@ -34,6 +34,9 @@ export default function SignInForm() {
       }
       const response = await axios.post(`${base_url}/user/login`, data);
       console.log(response?.data?.user, "Login Response")
+
+
+      
         const res = await signIn("credentials", {
         redirect: false,
         email: response?.data?.user?.email,

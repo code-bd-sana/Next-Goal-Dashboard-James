@@ -13,17 +13,17 @@ export default function UserDropdown() {
   const [user, setUser] = useState({})
 
    const {data} = useSession();
-    console.log(data?.user, "This is your data")
+ 
     
     const email = data?.user?.email;
     
-    console.log(email , "This is your email");
+
 
     const getUser = async()=>{
      
       try {
          const response = await axios.get(`${base_url}/user/getUser/${email}`, {withCredentials:true});
-      console.log(response?.data?.data, "HI joy bangla");
+    
       setUser(response?.data?.data)
       } catch (error) {
         console.log(error)
@@ -40,7 +40,7 @@ getUser();
 
 
 
-    console.log(user, "Hey user whast up[ osdigjm")
+ 
 
 function toggleDropdown(e) {
   e.stopPropagation();
