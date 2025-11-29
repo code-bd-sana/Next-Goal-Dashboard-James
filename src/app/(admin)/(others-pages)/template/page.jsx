@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { useDeleteEmailTemplateMutation, useEditEmailTemplateMutation, useGetSingleUserTemplateQuery } from '@/feature/TemplateApi';
 import { useSession } from 'next-auth/react';
 import { AiOutlineEye, AiOutlineEdit, AiOutlineDelete } from 'react-icons/ai';
+import SecureProvider from '@/secureRoute/SecureProvider';
 
 export default function EmailTemplatesPage() {
   const { data: session } = useSession();
@@ -103,15 +104,18 @@ export default function EmailTemplatesPage() {
   if (isError) return <div className="text-red-500 text-center py-10">Error loading templates.</div>;
 
   return (
-    <div className="min-h-screen bg-[#0f172a] py-10 px-4">
+ 
+    <SecureProvider>
+
+         <div className="min-h-screen bg-[#0f172a] py-10 px-4">
       <div className="max-w-7xl mx-auto space-y-8">
         <h1 className="text-white text-3xl font-bold mb-6">Your Email Templates</h1>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
           {currentTemplates.map((item) => (
             <div key={item._id} className="bg-[#1e293b] rounded-xl shadow-lg p-6 hover:shadow-2xl transition-shadow relative">
-                <h2 className="text-white text-xl font-semibold mb-2">
-                {item.template.name}
+                <h2 className=" text-2xl text-yellow-500 font-semibold mb-2">
+                {item.name}
               </h2>
               <h2 className="text-white text-xl font-semibold mb-2">
                 {item.template.subject}      
@@ -284,5 +288,6 @@ export default function EmailTemplatesPage() {
         )}
       </div>
     </div>
+    </SecureProvider>
   );
 }

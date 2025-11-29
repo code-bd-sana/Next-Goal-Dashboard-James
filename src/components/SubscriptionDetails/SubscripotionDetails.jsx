@@ -265,7 +265,7 @@ export default function SubscriptionDetails() {
                     </p>
                   </TableCell>
                   <TableCell className="py-3 font-medium text-gray-800 text-theme-sm dark:text-white/90">
-                    ${subscription.price}
+                    ${subscription.plan === "Starter" ? 15 : subscription.plan === "Plus" ? 20 :30}
                   </TableCell>
                   <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
                     {formatDate(subscription.startDate)}

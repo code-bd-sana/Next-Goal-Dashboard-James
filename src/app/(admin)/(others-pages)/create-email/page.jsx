@@ -6,6 +6,8 @@ import React, { useState } from "react";
 import axios from "axios";
 import { base_url } from "@/utils/utils";
 import { useSaveEmailTemplateMutation } from "@/feature/TemplateApi";
+import SecureProvider from '../../../../secureRoute/SecureProvider'
+import toast, { Toaster } from "react-hot-toast";
 
 export default function Page() {
   const { data } = useSession();
@@ -80,13 +82,13 @@ export default function Page() {
           subjectTemplate: response.data.subject,
           emailTemplate: response.data.email,
         }));
-        alert("Email template generated successfully!");
+        toast.success("Email template generated successfully!");
       } else {
-        alert("Failed to generate email template");
+        toast.success("Failed to generate email template");
       }
     } catch (error) {
       console.error("Error generating email:", error);
-      alert(
+      toast.error(
         "429 You exceeded your current quota, please check your plan and billing details."
       );
     } finally {
@@ -99,17 +101,17 @@ export default function Page() {
     try {
       // Validate required fields
       if (!formData.templateName) {
-        alert("Please enter a template name");
+        toast.alert("Please enter a template name");
         return;
       }
 
       if (!formData.subjectTemplate || !formData.emailTemplate) {
-        alert("Please generate an email template first");
+        toast.alert("Please generate an email template first");
         return;
       }
 
       if (!userData?.data?._id || !email) {
-        alert("User information is missing");
+        toast.alert("User information is missing");
         return;
       }
 
@@ -126,20 +128,25 @@ export default function Page() {
       const res = await saveEmailTemplate(payload).unwrap();
 
       if (res.success) {
-        alert("Template saved successfully!");
+        toast.success("Template saved successfully!");
         // Clear template name after successful save
         setFormData(prev => ({ ...prev, templateName: "" }));
       } else {
-        alert("Failed to save template");
+        toast.error("Failed to save template");
       }
     } catch (err) {
       console.error("Save error:", err);
-      alert("Error saving template: " + (err.data?.message || err.message));
+      toast.error("Error saving template: " + (err.data?.message || err.message));
     }
   };
 
   return (
-    <div className="min-h-screen bg-[#0f172a] py-10 px-4">
+  
+    <SecureProvider>
+
+        <div className="min-h-screen bg-[#0f172a] py-10 px-4">
+
+          <Toaster/>
       <div className="max-w-7xl mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Left Column - Profile Information, Link, Additional Info */}
@@ -414,5 +421,6 @@ export default function Page() {
         </div>
       </div>
     </div>
+    </SecureProvider>
   );
 }

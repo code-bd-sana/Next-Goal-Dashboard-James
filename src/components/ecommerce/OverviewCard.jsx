@@ -60,13 +60,16 @@ export const OverviewCards = () => {
   
 const {data:overview} = useUsreOverviwQuery(data?.user?.email);
   console.log(overview, "tomi amar overview");
-  const formattedDate = new Date(overview?.subscriptionEnding).toLocaleString("en-US", {
-  year: "numeric",
-  month: "short",
-  day: "numeric",
-  hour: "2-digit",
-  minute: "2-digit",
-});
+const formattedDate = overview?.subscriptionEnding
+  ? new Date(overview.subscriptionEnding).toLocaleString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    })
+  : "";
+
 
 
 const {data:adminOverview} =  useAdminOverviewQuery();

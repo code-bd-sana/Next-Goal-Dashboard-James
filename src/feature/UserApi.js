@@ -9,7 +9,15 @@ export const UserApi = createApi({
     getSingleUser: builder.query({
       query: (email) => `/user/getUser/${email}`, // you can adjust based on your API
     }),
+    changePassword: builder.mutation({
+      query:(body)=>({
+        url:`/password/change`,
+        method:"PUT",
+        body:body
+
+      })
+    })
   }),
 });
 
-export const { useGetSingleUserQuery } = UserApi;
+export const { useGetSingleUserQuery, useChangePasswordMutation } = UserApi;

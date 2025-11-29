@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AiOutlineCheckCircle } from "react-icons/ai";
 import { useGetAllCoachesQuery } from "../../../feature/CoachApi";
+import SecureProvider from "@/secureRoute/SecureProvider";
 
 export default function SelectCoachPage() {
   const router = useRouter();
@@ -17,14 +18,14 @@ export default function SelectCoachPage() {
 
   const { data, isLoading } = useGetAllCoachesQuery({ 
     page: 1, 
-    limit: 100, // Increased limit to show more coaches
+    limit: 100,
     ...filters 
   });
   
   const coaches = data?.data || [];
   const [selectedCoaches, setSelectedCoaches] = useState([]);
 
-  console.log(data, "Coaches data");
+  console.log("🏀 All Coaches Data:", data);
 
   // Handle filter changes
   const handleFilterChange = (key, value) => {
@@ -35,26 +36,36 @@ export default function SelectCoachPage() {
   };
 
   const handleSelectCoach = (coach) => {
-    if (selectedCoaches.some((c) => c.email === coach.email)) {
-      setSelectedCoaches(selectedCoaches.filter((c) => c.email !== coach.email));
+    if (selectedCoaches.some((c) => c._id === coach._id)) {
+      setSelectedCoaches(selectedCoaches.filter((c) => c._id !== coach._id));
     } else {
       setSelectedCoaches([...selectedCoaches, coach]);
     }
+    
+    console.log("✅ Selected Coach:", {
+      _id: coach._id,
+      name: coach.name,
+      email: coach.email,
+      school: coach.school
+    });
   };
 
   const handleSelectAll = () => {
-    // Select all currently filtered coaches
     if (selectedCoaches.length === filteredCoaches.length) {
-      // If all are selected, deselect all
       setSelectedCoaches([]);
+      console.log("🗑️ Deselected all coaches");
     } else {
-      // Otherwise select all filtered coaches
       setSelectedCoaches([...filteredCoaches]);
+      console.log("✅ Selected all coaches:", filteredCoaches.map(c => ({
+        _id: c._id,
+        name: c.name,
+        email: c.email
+      })));
     }
   };
 
-  const isSelected = (email) => {
-    return selectedCoaches.some((c) => c.email === email);
+  const isSelected = (coachId) => {
+    return selectedCoaches.some((c) => c._id === coachId);
   };
 
   // Client-side search for additional filtering
@@ -77,9 +88,22 @@ export default function SelectCoachPage() {
   });
 
   const handleContinue = () => {
-    const allEmails = selectedCoaches.map((c) => c.email);
-    console.log("Selected Emails:", allEmails);
-    router.push("/select-template?emails=" + JSON.stringify(allEmails));
+    // Create array with both emails and coach IDs
+    const coachData = selectedCoaches.map((coach) => ({
+      email: coach.email,
+      coachId: coach._id,
+      name: coach.name,
+      school: coach.school
+    }));
+
+    console.log("📤 Sending to Template Page:", {
+      totalSelected: coachData.length,
+      coachData: coachData,
+      emails: coachData.map(c => c.email),
+      coachIds: coachData.map(c => c.coachId)
+    });
+
+    router.push("/select-template?coaches=" + JSON.stringify(coachData));
   };
 
   const clearFilters = () => {
@@ -100,7 +124,9 @@ export default function SelectCoachPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#06152B] text-white px-6 py-10">
+ <SecureProvider>
+
+     <div className="min-h-screen bg-[#06152B] text-white px-6 py-10">
       <h1 className="text-3xl font-bold mb-6">Select Coaches</h1>
 
       {/* FILTER BAR */}
@@ -175,6 +201,14 @@ export default function SelectCoachPage() {
           {selectedCoaches.length > 0 && ` • ${selectedCoaches.length} selected`}
         </div>
 
+        {/* Debug Info */}
+        <div className="mt-3 p-2 bg-[#0B1B31] rounded-lg border border-gray-700">
+          <p className="text-xs text-gray-400">
+            <strong>Debug:</strong> Selected: {selectedCoaches.length} | 
+            Coach IDs: {selectedCoaches.map(c => c._id).join(', ')}
+          </p>
+        </div>
+
         {/* TABLE */}
         <div className="mt-6 overflow-x-auto">
           {filteredCoaches.length === 0 ? (
@@ -204,7 +238,7 @@ export default function SelectCoachPage() {
                     <td className="py-3 px-2">
                       <input
                         type="checkbox"
-                        checked={isSelected(coach.email)}
+                        checked={isSelected(coach._id)}
                         onChange={() => handleSelectCoach(coach)}
                         className="w-4 h-4 text-yellow-500 bg-gray-700 border-gray-600 rounded focus:ring-yellow-500"
                       />
@@ -213,6 +247,7 @@ export default function SelectCoachPage() {
                     <td className="py-3 px-4">
                       <div className="font-semibold">{coach.name}</div>
                       <div className="text-gray-400 text-sm">{coach.email}</div>
+                      <div className="text-gray-500 text-xs">ID: {coach._id}</div>
                     </td>
 
                     <td className="py-3 px-4">{coach.school}</td>
@@ -260,5 +295,6 @@ export default function SelectCoachPage() {
         </button>
       </div>
     </div>
+ </SecureProvider>
   );
 }

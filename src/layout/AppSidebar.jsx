@@ -22,8 +22,8 @@ import { useSession } from "next-auth/react";
 import { MdOutlineMailOutline } from "react-icons/md";
 import { HiTemplate } from "react-icons/hi";
 import { GiTeacher } from "react-icons/gi";
-
-
+import { IoSendSharp } from "react-icons/io5";
+import { FaFacebook, FaTwitter, FaLinkedin, FaInstagram } from "react-icons/fa";
 
 const navItems = [
   {
@@ -46,50 +46,38 @@ const navItems = [
     name: " Profile",
     path: "/profile",
   },
-  // {
-  //   name: "Form Elements",
-  //   icon: <ListIcon />,
-  //   path: "/form-elements",
-  // }, 
   {
     name: "Payment History",
     icon: <TableIcon />,
     path: "/payment-history",
   },
-  // {
-  //   name: "Blank Page",
-  //   icon: <PageIcon />,
-  //   path: "/blank",
-  // },
-  // {
-  //   name: "404 Error",
-  //   icon: <PageIcon />,
-  //   path: "/error-404",
-  // },
 ];
 
 const othersItems = [
   {
     icon: <GridIcon />,
-    name: "Dashboard",    path: "/",
+    name: "Dashboard",
+    path: "/",
   },
-      {
-      icon: <MdOutlineMailOutline /> ,
-
+  {
+    icon: <MdOutlineMailOutline />,
     name: "Create Email",
     path: "/create-email",
   },
-      {
-      icon: <HiTemplate />,
-
+  {
+    icon: <HiTemplate />,
     name: "Email Template",
     path: "/template",
   },
-
-    {
+  {
     icon: <GiTeacher />,
     name: "Select Coach",
     path: "/select-coaches",
+  },
+  {
+    icon: <IoSendSharp />,
+    name: "Send Email",
+    path: "/send-email",
   },
   {
     icon: <FaUser />,
@@ -101,12 +89,6 @@ const othersItems = [
     name: " Profile",
     path: "/profile",
   },
-
-  // {
-  //   name: "Form Elements",
-  //   icon: <ListIcon />,
-  //   path: "/form-elements",
-  // }, 
   {
     name: "Payment History",
     icon: <TableIcon />,
@@ -114,17 +96,36 @@ const othersItems = [
   },
 ];
 
+const socialLinks = [
+  {
+    icon: <FaFacebook className="w-4 h-4" />,
+    name: "Facebook",
+    url: "https://www.facebook.com/",
+  },
+  {
+    icon: <FaTwitter className="w-4 h-4" />,
+    name: "X (Twitter)",
+    url: "https://x.com/",
+  },
+  {
+    icon: <FaLinkedin className="w-4 h-4" />,
+    name: "LinkedIn",
+    url: "https://www.linkedin.com/",
+  },
+  {
+    icon: <FaInstagram className="w-4 h-4" />,
+    name: "Instagram",
+    url: "https://www.instagram.com/",
+  },
+];
 
- 
 const AppSidebar = () => {
   const { isExpanded, isMobileOpen, isHovered, setIsHovered } = useSidebar();
   const pathname = usePathname();
-   const {data} = useSession();
+  const { data } = useSession();
 
-    
-    const role = data?.user?.role;
-    
-    console.log(role , "This is your role")
+  const role = data?.user?.role;
+  console.log(role, "This is your role");
 
   const renderMenuItems = (navItems, menuType) => (
     <ul className="flex flex-col gap-4">
@@ -207,70 +208,95 @@ const AppSidebar = () => {
             <>
               <Image
                 className="dark:hidden"
-                src="/images/logo/logo2.jpg"
+                src="/images/logo/logo3.png"
                 alt="Logo"
                 width={160}
                 height={160}
               />
               <Image
                 className="hidden dark:block"
-                src="/images/logo/logo2.jpg"
+                src="/images/logo/logo3.png"
                 alt="Logo"
-                 width={160}
+                width={160}
                 height={160}
               />
             </>
           ) : (
             <Image
-              src="/images/logo/logo2.jpg"
+              src="/images/logo/logo3.png"
               alt="Logo"
-           width={160}
-                height={160}
+              width={160}
+              height={160}
             />
           )}
         </Link>
-
-        
       </div>
       <div className="flex flex-col overflow-y-auto duration-300 ease-linear no-scrollbar">
         <nav className="mb-6">
           <div className="flex flex-col gap-4">
-           { role ===  'admin' && <div>
-              <h2
-                className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${
-                  !isExpanded && !isHovered
-                    ? "lg:justify-center"
-                    : "justify-start"
-                }`}
-              >
-                {isExpanded || isHovered || isMobileOpen ? (
-                  "Admin Menu"
-                ) : (
-                  <HorizontaLDots />
-                )}
-              </h2>
-              {renderMenuItems(navItems, "main")}
-            </div>}
+            {role === "admin" && (
+              <div>
+                <h2
+                  className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${
+                    !isExpanded && !isHovered
+                      ? "lg:justify-center"
+                      : "justify-start"
+                  }`}
+                >
+                  {isExpanded || isHovered || isMobileOpen ? (
+                    "Admin Menu"
+                  ) : (
+                    <HorizontaLDots />
+                  )}
+                </h2>
+                {renderMenuItems(navItems, "main")}
+              </div>
+            )}
 
-          { role === 'user' && <div className="">
-              <h2
-                className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${
-                  !isExpanded && !isHovered
-                    ? "lg:justify-center"
-                    : "justify-start"
-                }`}
-              >
-                {isExpanded || isHovered || isMobileOpen ? (
-                  ""
-                ) : (
-                  <HorizontaLDots />
-                )}
-              </h2>
-              {renderMenuItems(othersItems, "")}
-            </div>}
+            {role === "user" && (
+              <div className="">
+                <h2
+                  className={`mb-4 text-xs uppercase flex leading-[20px] text-gray-400 ${
+                    !isExpanded && !isHovered
+                      ? "lg:justify-center"
+                      : "justify-start"
+                  }`}
+                >
+                  {isExpanded || isHovered || isMobileOpen ? (
+                    ""
+                  ) : (
+                    <HorizontaLDots />
+                  )}
+                </h2>
+                {renderMenuItems(othersItems, "")}
+              </div>
+            )}
           </div>
         </nav>
         {isExpanded || isHovered || isMobileOpen ? <SidebarWidget /> : null}
+        
+        {/* Social Links Section */}
+        <div className="mt-auto pb-6">
+          {(isExpanded || isHovered || isMobileOpen) && (
+            <h3 className="text-xs uppercase text-gray-400 mb-3 font-medium">
+              Follow Us
+            </h3>
+          )}
+          <div className={`flex ${isExpanded || isHovered || isMobileOpen ? "justify-between" : "justify-center"} gap-2`}>
+            {socialLinks.map((social) => (
+              <a
+                key={social.name}
+                href={social.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center w-8 h-8 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-200"
+                title={social.name}
+              >
+                {social.icon}
+              </a>
+            ))}
+          </div>
+        </div>
       </div>
     </aside>
   );

@@ -60,7 +60,7 @@ function toggleDropdown(e) {
           <Image
             width={44}
             height={44}
-            src="/images/user/code.jpg"
+            src="/images/user5.jpg"
             alt="User"
           />
         </span>

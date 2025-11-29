@@ -22,6 +22,6 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "src/layout/AppSidebar.jsx", "src/components/ecommerce/RecentOrders.jsx", "src/components/auth/SignUpForm.jsx", "src/components/auth/SignInForm.jsx", "src/components/ecommerce/OverviewCard.jsx", "src/components/ecommerce/StatisticsChart.jsx", "src/components/header/UserDropdown.jsx", "src/app/layout.tsx", "src/app/(admin)/layout.jsx"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "src/layout/AppSidebar.jsx", "src/components/ecommerce/RecentOrders.jsx", "src/components/auth/SignUpForm.jsx", "src/components/auth/SignInForm.jsx", "src/components/ecommerce/OverviewCard.jsx", "src/components/ecommerce/StatisticsChart.jsx", "src/components/header/UserDropdown.jsx", "src/app/layout.tsx", "src/app/(admin)/layout.jsx", "src/feature/UserApi.js", "src/app/(admin)/(others-pages)/profile/page.jsx", "src/secureRoute/SecureProvider.jsx"],
   "exclude": ["node_modules"]
 }
