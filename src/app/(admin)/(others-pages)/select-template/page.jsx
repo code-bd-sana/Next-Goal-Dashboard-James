@@ -5,6 +5,7 @@ import { useGetSingleUserTemplateQuery } from "@/feature/TemplateApi";
 import { useSession } from "next-auth/react";
 import { useSendEmailMutation } from "@/feature/EmailApi";
 import SecureProvider from "@/secureRoute/SecureProvider";
+import toast, { Toaster } from "react-hot-toast";
 
 export default function SelectTemplatePage() {
   const { data: session } = useSession();
@@ -183,7 +184,8 @@ export default function SelectTemplatePage() {
         setSendResults([...results]);
 
       } catch (error) {
-        console.error(`❌ Failed to send email ${i + 1} to ${currentEmail}:`, error);
+        console.error(`❌ Failed to send email ${i + 1} to ${currentEmail}:`, error?.data?.message);
+        toast.error(error?.data?.message)
         
         results.push({
           email: currentEmail,
@@ -232,6 +234,7 @@ export default function SelectTemplatePage() {
 
   return (
   <SecureProvider>
+    <Toaster/>
 
       <div className="min-h-screen bg-[#06152B] text-white px-6 py-10">
       <h1 className="text-3xl font-bold mb-2">Choose Email Template</h1>

@@ -29,7 +29,10 @@ export const EmailApi = createApi({
       },
       providesTags: ['Email'],
     }),
+    myPlan: builder.query({
+      query:(email)=>`email/checkLimit/${email}`
+    })
   }),
 });
 
-export const { useSendEmailMutation, useMyEmailQuery } = EmailApi;
+export const { useSendEmailMutation, useMyEmailQuery, useMyPlanQuery } = EmailApi;
