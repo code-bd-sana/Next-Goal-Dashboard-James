@@ -37,9 +37,16 @@ export const config = {
   matcher: [
     '/',
     '/profile',
+    '/select-coaches',
     '/subscription-details',
     '/payment-history',
-    '/users'
+    '/users',
+    '/send-email',
+    '/select-coaches',
+    '/template',
+    '/create-email',
+    '/coach',
+    
     
   ],
 };

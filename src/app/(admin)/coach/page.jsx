@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { useGetAllCoachesQuery, useSaveCoachMutation, useDeleteCoachMutation } from "../../../feature/CoachApi";
 import { toast, Toaster } from 'react-hot-toast';
+import SecureAdminRoute from "@/secureRoute/SecureAdminRoute";
 
 export default function CoachPage() {
   // State for filters and pagination
@@ -145,7 +146,8 @@ export default function CoachPage() {
   }
 
   return (
-    <div className="p-6 bg-gray-900 min-h-screen text-white">
+  <SecureAdminRoute>
+      <div className="p-6 bg-gray-900 min-h-screen text-white">
       <Toaster />
       
       {/* Header */}
@@ -469,5 +471,6 @@ export default function CoachPage() {
         </div>
       )}
     </div>
+  </SecureAdminRoute>
   );
 }
