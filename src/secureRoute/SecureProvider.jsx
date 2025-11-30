@@ -2,6 +2,7 @@
 import { useGetSingleUserQuery } from '@/feature/UserApi';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import React from 'react'
 
 export default function SecureProvider({children}) {
@@ -11,8 +12,14 @@ export default function SecureProvider({children}) {
   
   const { data: user, isLoading } = useGetSingleUserQuery(data?.user?.email);
 
+  const router = useRouter();
+
     if(userData.status === 'loading' || isLoading){
       return <p>Loading...</p>
+    }
+
+    if(userData.status === "unauthenticated"){
+      router.push('/signin')
     }
 
 

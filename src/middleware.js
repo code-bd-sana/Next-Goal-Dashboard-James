@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getToken } from "next-auth/jwt";
+// import { getToken } from "next-auth/jwt";
 
 export default async function middleware(req) {
   const { pathname } = req.nextUrl;
@@ -13,19 +13,19 @@ export default async function middleware(req) {
   }
 
 
-  const token = await getToken({ 
-    req, 
-    secret: "aidfjnvociydfnovfadf",
-    secureCookie: process.env.NODE_ENV === 'production'
-  });
+  // const token = await getToken({ 
+  //   req, 
+  //   secret: "aidfjnvociydfnovfadf",
+  //   secureCookie: process.env.NODE_ENV === 'production'
+  // });
 
 
 
 
-  if (!token) {
-    const signinUrl = new URL('/signin', req.url);
-    return NextResponse.redirect(signinUrl);
-  }
+  // if (!token) {
+  //   const signinUrl = new URL('/signin', req.url);
+  //   return NextResponse.redirect(signinUrl);
+  // }
 
 
  

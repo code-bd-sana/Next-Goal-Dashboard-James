@@ -3,6 +3,7 @@ import {  OverviewCards } from "@/components/ecommerce/OverviewCard";
 import React from "react";
 import StatisticsChart from "@/components/ecommerce/StatisticsChart";
 import RecentOrders from "@/components/ecommerce/RecentOrders";
+import Secure from "@/secureRoute/Secure";
 
 
 export const metadata: Metadata = {
@@ -13,7 +14,9 @@ export const metadata: Metadata = {
 
 export default function Ecommerce() {
   return (
-    <div className="grid grid-cols-12 gap-4 md:gap-6">
+   <Secure>
+
+     <div className="grid grid-cols-12 gap-4 md:gap-6">
       <div className="col-span-12 space-y-6 xl:col-span-12">
         <OverviewCards />
 
@@ -36,5 +39,6 @@ export default function Ecommerce() {
         <RecentOrders />
       </div>
     </div>
+   </Secure>
   );
 }
