@@ -22,7 +22,8 @@ export default function SignUpForm() {
     gpa: "",
     height: "",
     weight: "",
-    team: ""
+    team: "",
+    sport: ""
   });
 
   const handleInputChange = (e) => {
@@ -47,6 +48,7 @@ export default function SignUpForm() {
       height: formData.height,
       weight: formData.weight,
       team: formData.team,
+      sport: formData.sport,
       termsAccepted: isChecked,
       role:"user"
     };
@@ -173,6 +175,23 @@ export default function SignUpForm() {
 
                 {/* <!-- New Fields --> */}
                 <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                  {/* <!-- Sport --> */}
+                  <div className="sm:col-span-2">
+                    <Label>Sport</Label>
+                    <select
+                      id="sport"
+                      name="sport"
+                      value={formData.sport}
+                      onChange={handleInputChange}
+                      className="w-full px-4 py-3 text-sm transition bg-transparent border rounded-lg border-gray-300 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 dark:border-gray-700 dark:bg-dark-800 dark:text-white/90"
+                    >
+                      <option value="" className="text-black">Select Sport</option>
+                      <option value="football" className="text-black">Football</option>
+                      <option value="baseball" className="text-black">Baseball</option>
+                      <option value="basketball" className="text-black">Basketball</option>
+                    </select>
+                  </div>
+
                   {/* <!-- Position --> */}
                   <div className="sm:col-span-2">
                     <Label>Position</Label>
